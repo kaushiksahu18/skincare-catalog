@@ -196,7 +196,7 @@ export default function SkincareCatalog() {
   return (
     <div className="w-full mx-auto p-4 space-y-4">
       <div className="w-full flex justify-between items-center">
-        <h1 className="text-2xl font-bold mb-4">Skincare Catalog</h1>
+        <h1 className="text-2xl font-bold">Skincare Catalog</h1>
         <Button onClick={addRow}>
           <Plus className="mr-2 h-4 w-4" /> Add Row
         </Button>
