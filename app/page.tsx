@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { Plus, Trash2, Filter, X, EllipsisVertical } from "lucide-react";
+import { useState, useEffect, useRef, Suspense } from "react";
+import { Plus, Trash2, Filter, EllipsisVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -195,12 +195,14 @@ export default function SkincareCatalog() {
 
   return (
     <div className="w-full mx-auto p-4 space-y-4">
-      <div className="w-full flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Skincare Catalog</h1>
-        <Button onClick={addRow}>
-          <Plus className="mr-2 h-4 w-4" /> Add Row
-        </Button>
-      </div>
+      <Suspense fallback={<div>Loading...</div>}>
+        <div className="w-full flex justify-between items-center">
+          <h1 className="text-2xl font-bold">Skincare Catalog</h1>
+          <Button onClick={addRow}>
+            <Plus className="mr-2 h-4 w-4" /> Add Row
+          </Button>
+        </div>
+      </Suspense>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -291,7 +293,10 @@ export default function SkincareCatalog() {
                           filterRefs.current[column.name] = el;
                         }}
                       >
-                        <div className="space-y-4 space-x-4">
+                        <div className="flex flex-col gap-4">
+                        <h4 className="font-medium leading-none">
+                          Update {column.name}
+                        </h4>
                           <div className="flex items-center gap-2">
                             <Label htmlFor="name" className="text-right">
                               Update Name
@@ -322,15 +327,15 @@ export default function SkincareCatalog() {
                             </Select>
                           </div>
                         </div>
-                        <div className="flex justify-end">
+                        <div className="flex justify-end items-center mt-2">
                           <Button
-                            className="m-2 ml-auto"
+                            className="mx-1"
                             onClick={() => updateColumn(column)}
                           >
                             Update
                           </Button>
                           <Button
-                            className="m-2 ml-auto"
+                            className="mx-1"
                             variant="destructive"
                             onClick={() => deleteColumn(column)}
                           >
@@ -397,63 +402,65 @@ export default function SkincareCatalog() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredRows.map((row) => (
-              <TableRow key={row.id}>
-                {columns.map((column) => (
-                  <TableCell key={`${row.id}-${column.name}`}>
-                    <Input
-                      type={column.type === "number" ? "number" : "text"}
-                      value={row[column.name]}
-                      onChange={(e) =>
-                        updateCellValue(
-                          row.id,
-                          column.name,
-                          column.type === "number"
-                            ? Number(e.target.value)
-                            : e.target.value
-                        )
-                      }
-                    />
-                  </TableCell>
-                ))}
-                <TableCell>
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button
-                        variant="destructive"
-                        size="icon"
-                        onClick={() => setDeleteRowId(row.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Confirm Delete</DialogTitle>
-                      </DialogHeader>
-                      <p>
-                        Are you sure you want to delete this row? This action
-                        cannot be undone.
-                      </p>
-                      <DialogFooter>
-                        <Button
-                          variant="outline"
-                          onClick={() => setDeleteRowId(null)}
-                        >
-                          No
-                        </Button>
+            <Suspense fallback={<div>Loading Data...</div>}>
+              {filteredRows.map((row) => (
+                <TableRow key={row.id}>
+                  {columns.map((column) => (
+                    <TableCell key={`${row.id}-${column.name}`}>
+                      <Input
+                        type={column.type === "number" ? "number" : "text"}
+                        value={row[column.name]}
+                        onChange={(e) =>
+                          updateCellValue(
+                            row.id,
+                            column.name,
+                            column.type === "number"
+                              ? Number(e.target.value)
+                              : e.target.value
+                          )
+                        }
+                      />
+                    </TableCell>
+                  ))}
+                  <TableCell>
+                    <Dialog>
+                      <DialogTrigger asChild>
                         <Button
                           variant="destructive"
-                          onClick={() => deleteRow(row.id)}
+                          size="icon"
+                          onClick={() => setDeleteRowId(row.id)}
                         >
-                          Yes, Confirm
+                          <Trash2 className="h-4 w-4" />
                         </Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
-                </TableCell>
-              </TableRow>
-            ))}
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Confirm Delete</DialogTitle>
+                        </DialogHeader>
+                        <p>
+                          Are you sure you want to delete this row? This action
+                          cannot be undone.
+                        </p>
+                        <DialogFooter>
+                          <Button
+                            variant="outline"
+                            onClick={() => setDeleteRowId(null)}
+                          >
+                            No
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            onClick={() => deleteRow(row.id)}
+                          >
+                            Yes, Confirm
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </Suspense>
           </TableBody>
         </Table>
       </div>
